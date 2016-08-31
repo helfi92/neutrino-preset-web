@@ -1,0 +1,23 @@
+{
+  "name": "neutrino-preset-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "keywords": [],
+  "author": "Eli Perelman <eli@eliperelman.com>",
+  "license": "MPL-2.0",
+  "dependencies": {
+    "babel-polyfill": "6.13.0",
+    "css-loader": "0.24.0",
+    "deepmerge": "0.2.10",
+    "exists-file": "2.1.0",
+    "html-webpack-plugin": "2.22.0",
+    "neutrino-preset-base": "1.0.0",
+    "style-loader": "0.13.1",
+    "webpack": "1.13.2",
+    "webpack-merge": "0.14.1"
+  },
+  "peerDependencies": {
+    "neutrino": "^2.0.0"
+  }
+}
