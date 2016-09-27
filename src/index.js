@@ -111,9 +111,8 @@ const config = webpackMerge(preset, {
 
 if (process.env.NODE_ENV !== 'test') {
   config.plugins.push(new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    minChunks: Infinity,
-    filename: 'vendor.bundle.js'
+    name: 'commons',
+    filename: 'commons.js'
   }));
 }
 
@@ -132,7 +131,6 @@ if (process.env.NODE_ENV === 'development') {
     stats: {
       colors: true,
       chunks: false,
-      // hash: false,
       version: false,
       assets: false,
       modules: false,
@@ -143,9 +141,9 @@ if (process.env.NODE_ENV === 'development') {
   config.entry.index.unshift(`webpack-dev-server/client?http://localhost:${config.devServer.port}`)
 } else if (process.env.NODE_ENV === 'production') {
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-    compress: { warnings: false },
-    output: { comments: false },
-    sourceMap: false
+    sourceMap: false,
+    minimize: true,
+    compress: { warnings: false }
   }));
 } else if (process.env.NODE_ENV === 'test') {
   config.karma = {

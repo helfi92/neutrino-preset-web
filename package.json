@@ -1,6 +1,6 @@
 {
   "name": "neutrino-preset-web",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Neutrino preset for building generic web applications",
   "main": "src/index.js",
   "keywords": [
@@ -25,7 +25,7 @@
     "karma-webpack": "1.8.0",
     "mocha": "3.0.2",
     "mocha-coverage-reporter": "0.0.1",
-    "neutrino-preset-base": "1.0.0",
+    "neutrino-preset-base": "1.1.0",
     "style-loader": "0.13.1",
     "url-loader": "0.5.7",
     "webpack": "1.13.2",
