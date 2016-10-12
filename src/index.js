@@ -112,14 +112,15 @@ const config = webpackMerge(preset, {
 if (process.env.NODE_ENV !== 'test') {
   config.plugins.push(new webpack.optimize.CommonsChunkPlugin({
     name: 'commons',
-    filename: 'commons.js'
+    filename: 'commons.js',
+    minChunks: Infinity
   }));
 }
 
 if (process.env.NODE_ENV === 'development') {
   config.devServer = {
     port: process.env.PORT || 5000,
-    host: 'localhost',
+    host: process.env.HOST || 'localhost',
     contentBase: SRC,
     // Enable history API fallback so HTML5 History API based
     // routing works. This is a good default that will come
