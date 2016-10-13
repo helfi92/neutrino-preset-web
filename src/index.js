@@ -118,9 +118,14 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 if (process.env.NODE_ENV === 'development') {
+  const protocol = !!process.env.HTTPS ? 'https' : 'http';
+  const host = process.env.HOST || 'localhost';
+  const port = process.env.PORT || 5000;
+
   config.devServer = {
-    port: process.env.PORT || 5000,
-    host: process.env.HOST || 'localhost',
+    host,
+    port,
+    https: protocol === 'https',
     contentBase: SRC,
     // Enable history API fallback so HTML5 History API based
     // routing works. This is a good default that will come
@@ -128,7 +133,6 @@ if (process.env.NODE_ENV === 'development') {
     historyApiFallback: true,
     hot: true,
     progress: true,
-    // Display only errors to reduce the amount of output.
     stats: {
       colors: true,
       chunks: false,
@@ -139,7 +143,7 @@ if (process.env.NODE_ENV === 'development') {
       source: false
     }
   };
-  config.entry.index.unshift(`webpack-dev-server/client?http://localhost:${config.devServer.port}`)
+  config.entry.index.unshift(`webpack-dev-server/client?${protocol}://${host}:${port}`);
 } else if (process.env.NODE_ENV === 'production') {
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
     sourceMap: false,
