@@ -39,7 +39,7 @@ const config = webpackMerge(preset, {
   plugins: [
     new webpack.EnvironmentPlugin(['NODE_ENV']),
     new HtmlPlugin({
-      template: exists(PROJECT_TEMPLATE) ? PROJECT_TEMPLATE : PRESET_TEMPLATE,
+      template: exists.sync(PROJECT_TEMPLATE) ? PROJECT_TEMPLATE : PRESET_TEMPLATE,
       hash: true,
       xhtml: true
     })
