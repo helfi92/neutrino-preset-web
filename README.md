@@ -11,7 +11,11 @@ static local development server.
 Install neutrino and neutrino-preset-web as development dependencies in your project:
 
 ```sh
+# npm
 npm install --save-dev neutrino neutrino-preset-web
+
+# yarn
+yarn add neutrino neutrino-preset-web --dev
 ```
 
 Modify your package.json scripts to use the web preset to build your project
@@ -31,13 +35,13 @@ Modify your package.json scripts to use the web preset to build your project
 
 Add your source code to `src/`, which is compiled using Babel's es2015 preset. A number of loaders
 are pre-configured, allowing you to use `import` and `export` for CSS, images, HTML, and JSON.
-During development, run `npm start` to start a local development server for running the application.
-When you are ready to build your project into static assets, run `npm run build` which will create
+During development, run `npm start` or `yarn start` to start a local development server for running the application.
+When you are ready to build your project into static assets, run `npm run build` or `yarn run build` which will create
 a `build/` directory in the root of your project.
 
 If you would like to use testing in your project, create a `test/` directory, and write tests in
 JS files with file names ending in `_test.js`, e.g. `test/homepage_test.js` or
-`test/users/admin_test.js`. Run tests with `npm test`, which will output results to the console, and
+`test/users/admin_test.js`. Run tests with `npm test` or `yarn test`, which will output results to the console, and
 also creates test coverage to a `.coverage/` directory.
 
 # Overriding the preset
