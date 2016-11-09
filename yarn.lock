@@ -3252,9 +3252,9 @@ negotiator@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
 
-neutrino-preset-base:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/neutrino-preset-base/-/neutrino-preset-base-2.0.1.tgz#8267e57587219bba520226805afc60f08bb1b09d"
+neutrino-preset-base@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/neutrino-preset-base/-/neutrino-preset-base-2.1.0.tgz#fbddf69c1e55df22c8dbce6bb98c2d55e9bb58be"
   dependencies:
     babel-core "6.17.0"
     babel-eslint "7.0.0"
