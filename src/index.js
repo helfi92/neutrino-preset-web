@@ -10,30 +10,18 @@ const webpackMerge = require('webpack-merge').smart;
 
 const CWD = process.cwd();
 const SRC = path.join(CWD, 'src');
-const PRESET_TEMPLATE_EJS = path.join(__dirname, 'template.ejs');
-const PRESET_TEMPLATE_INDEX = path.join(__dirname, 'index.html');
 const PROJECT_TEMPLATE = path.join(SRC, 'template.ejs');
+const PRESET_TEMPLATE = path.join(__dirname, 'template.ejs');
 const FILE_LOADER = require.resolve('file-loader');
 const CSS_LOADER = require.resolve('css-loader');
 const STYLE_LOADER = require.resolve('style-loader');
 const URL_LOADER = require.resolve('url-loader');
 const MODULES = path.join(__dirname, '../node_modules');
+const USER_CONFIG = require(path.join(CWD, 'package.json'));
+const BabiliPlugin = require("babili-webpack-plugin");
+let VENDOR_LIBS = Object.keys(USER_CONFIG.devDependencies).filter(d => !d.includes('neutrino'));
 
 preset.entry.index.unshift(require.resolve('babel-polyfill'));
-
-/**
- * Find best fit template.
- *
- * return preset template.ejs when no template found in project folder
- */
-function findTemplate() {
-  if (exists.sync(PRESET_TEMPLATE_EJS)) {
-    return PRESET_TEMPLATE_EJS;
-  } else if (exists.sync(PRESET_TEMPLATE_INDEX)) {
-    return PRESET_TEMPLATE_INDEX;
-  }
-  return PRESET_TEMPLATE;
-}
 
 const config = webpackMerge(preset, {
   target: 'web',
@@ -48,33 +36,39 @@ const config = webpackMerge(preset, {
     fs: 'empty',
     tls: 'empty'
   },
+  entry: {
+    vendor: VENDOR_LIBS
+  },
   output: {
-    publicPath: '/'
+    publicPath: './'
   },
   plugins: [
     new webpack.EnvironmentPlugin(['NODE_ENV']),
     new HtmlPlugin({
-      template: findTemplate(),
-      hash: true,
+      template: exists.sync(PROJECT_TEMPLATE) ? PROJECT_TEMPLATE : PRESET_TEMPLATE,
+      inject: 'body',
       xhtml: true
+    }),
+    new webpack.LoaderOptionsPlugin({
+      options: {
+        eslint: {
+          configFile: path.join(__dirname, 'eslint.js')
+        }
+      }
     })
   ],
-  eslint: {
-    configFile: path.join(__dirname, 'eslint.js')
-  },
   resolve: {
-    fallback: [MODULES]
-  },
-  resolveLoader: {
-    fallback: [MODULES]
+    modules: [MODULES]
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.html$/,
-        loader: FILE_LOADER,
-        query: {
-          name: '[name].[ext]'
+        use: {
+          loader: FILE_LOADER,
+          options: {
+            name: '[name].[ext]'
+          }
         }
       },
       {
@@ -83,42 +77,50 @@ const config = webpackMerge(preset, {
       },
       {
         test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-        loader: URL_LOADER,
-        query: {
-          limit: 10000,
-          mimetype: 'application/font-woff'
+        use: {
+          loader: URL_LOADER,
+          options: {
+            limit: 10000,
+            mimetype: 'application/font-woff'
+          }
         }
       },
       {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: URL_LOADER,
-        query: {
-          limit: '10000',
-          mimetype: 'application/octet-stream'
+        use: {
+          loader: URL_LOADER,
+          options: {
+            limit: '10000',
+            mimetype: 'application/octet-stream'
+          }
         }
       },
       {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        loader: FILE_LOADER
+        use: FILE_LOADER
       },
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: URL_LOADER,
-        query: {
-          limit: '10000',
-          mimetype: 'application/svg+xml'
+        use: {
+          loader: URL_LOADER,
+          options: {
+            limit: '10000',
+            mimetype: 'application/svg+xml'
+          }
         }
       },
       {
         test: /\.(png|jpg)$/,
-        loader: URL_LOADER,
-        query: {
-          limit: 8192
+        use: {
+          loader: URL_LOADER,
+          options: {
+            limit: 8192
+          }
         }
       },
       {
         test: /\.ico(\?v=\d+\.\d+\.\d+)?$/,
-        loader: URL_LOADER
+        use: URL_LOADER
       }
     ]
   }
@@ -126,8 +128,7 @@ const config = webpackMerge(preset, {
 
 if (process.env.NODE_ENV !== 'test') {
   config.plugins.push(new webpack.optimize.CommonsChunkPlugin({
-    name: 'commons',
-    filename: 'commons.js',
+    names: ['vendor', 'manifest'],
     minChunks: Infinity
   }));
 }
@@ -135,19 +136,18 @@ if (process.env.NODE_ENV !== 'test') {
 if (process.env.NODE_ENV === 'development') {
   const protocol = !!process.env.HTTPS ? 'https' : 'http';
   const host = process.env.HOST || 'localhost';
-  const port = process.env.PORT || 5000;
+  const port = parseInt(process.env.PORT) || 5000;
 
   config.devServer = {
     host,
     port,
+    hot: true,
     https: protocol === 'https',
     contentBase: SRC,
     // Enable history API fallback so HTML5 History API based
     // routing works. This is a good default that will come
     // in handy in more complicated setups.
     historyApiFallback: true,
-    hot: true,
-    progress: true,
     stats: {
       colors: true,
       chunks: false,
@@ -158,13 +158,16 @@ if (process.env.NODE_ENV === 'development') {
       source: false
     }
   };
-  config.entry.index.unshift(`webpack-dev-server/client?${protocol}://${host}:${port}`);
+
+  config.entry.index.push(`webpack-dev-server/client?${protocol}://${host}:${port}/`);
+  config.entry.index.push(`webpack/hot/dev-server`);
+  config.plugins.push(new webpack.HotModuleReplacementPlugin());
 } else if (process.env.NODE_ENV === 'production') {
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-    sourceMap: false,
-    minimize: true,
-    compress: { warnings: false }
-  }));
+  config.plugins.push(
+    new BabiliPlugin({ test: /\.(js|jsx)$/, comments: false }),
+    new webpack.optimize.UglifyJsPlugin({ sourceMap: false, compress: { warnings: false }}),
+    new webpack.LoaderOptionsPlugin({ minimize: true })
+  );
 } else if (process.env.NODE_ENV === 'test') {
   config.karma = {
     plugins: [
