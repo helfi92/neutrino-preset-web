@@ -18,7 +18,6 @@ const STYLE_LOADER = require.resolve('style-loader');
 const URL_LOADER = require.resolve('url-loader');
 const MODULES = path.join(__dirname, '../node_modules');
 const USER_CONFIG = require(path.join(CWD, 'package.json'));
-const BabiliPlugin = require("babili-webpack-plugin");
 let VENDOR_LIBS = Object.keys(USER_CONFIG.dependencies).filter(d => !d.includes('neutrino'));
 
 preset.entry.index.unshift(require.resolve('babel-polyfill'));
@@ -164,7 +163,6 @@ if (process.env.NODE_ENV === 'development') {
   config.plugins.push(new webpack.HotModuleReplacementPlugin());
 } else if (process.env.NODE_ENV === 'production') {
   config.plugins.push(
-    new BabiliPlugin({ test: /\.(js|jsx)$/, comments: false }),
     new webpack.optimize.UglifyJsPlugin({ sourceMap: false, compress: { warnings: false }}),
     new webpack.LoaderOptionsPlugin({ minimize: true })
   );
