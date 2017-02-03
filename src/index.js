@@ -10,17 +10,33 @@ const webpackMerge = require('webpack-merge').smart;
 
 const CWD = process.cwd();
 const SRC = path.join(CWD, 'src');
+const PRESET_TEMPLATE_EJS = path.join(__dirname, 'template.ejs');
+const PRESET_TEMPLATE_INDEX = path.join(__dirname, 'index.html');
 const PROJECT_TEMPLATE = path.join(SRC, 'template.ejs');
-const PRESET_TEMPLATE = path.join(__dirname, 'template.ejs');
 const FILE_LOADER = require.resolve('file-loader');
 const CSS_LOADER = require.resolve('css-loader');
 const STYLE_LOADER = require.resolve('style-loader');
 const URL_LOADER = require.resolve('url-loader');
 const MODULES = path.join(__dirname, '../node_modules');
 const USER_CONFIG = require(path.join(CWD, 'package.json'));
-let VENDOR_LIBS = Object.keys(USER_CONFIG.dependencies).filter(d => !d.includes('neutrino'));
+const VENDOR_LIBS = Object.keys(USER_CONFIG.dependencies);
 
 preset.entry.index.unshift(require.resolve('babel-polyfill'));
+
+/**
+ * Find best fit template.
+ *
+ * return preset template.ejs when no template found in project folder
+ */
+function findTemplate() {
+  if (exists.sync(PRESET_TEMPLATE_EJS)) {
+    return PRESET_TEMPLATE_EJS;
+  } else if (exists.sync(PRESET_TEMPLATE_INDEX)) {
+    return PRESET_TEMPLATE_INDEX;
+  }
+
+  return PROJECT_TEMPLATE;
+}
 
 const config = webpackMerge(preset, {
   target: 'web',
@@ -44,7 +60,7 @@ const config = webpackMerge(preset, {
   plugins: [
     new webpack.EnvironmentPlugin(['NODE_ENV']),
     new HtmlPlugin({
-      template: exists.sync(PROJECT_TEMPLATE) ? PROJECT_TEMPLATE : PRESET_TEMPLATE,
+      template: findTemplate(),
       inject: 'body',
       xhtml: true
     }),
